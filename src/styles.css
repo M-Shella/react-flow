@@ -1,10 +1,16 @@
+body {
+  padding: 0;
+  margin: 0;
+}
+
 .container {
   display: flex;
   height: 100%;
+  width: 100%;
 }
 
 .reactFlow {
-  background-color: #5f5d72;
+  height: 100%;
 }
 
 .node {
@@ -28,12 +34,10 @@
 
 .sidebar {
   color: white;
-  top: 5px;
-  left: 5px;
-  z-index: 1000;
   padding: 10px;
   border-right: 1px solid #222138;
-  width: 120px;
+  width: 180px;
+  height: 100vh;
   flex-grow: 0;
   flex-shrink: 0;
   background-color: #5f5d72;

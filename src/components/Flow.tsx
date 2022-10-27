@@ -14,7 +14,7 @@ import ReactFlow, {
   useStoreApi,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import CustomNode from "./CustomNode";
+import CustomNode from "./CustomNodes/CustomNode";
 
 const initialNodes: Node[] = [
   {
@@ -33,31 +33,6 @@ const nodeTypes = { customNode: CustomNode };
 const Flow = () => {
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
-  const [testState, setTestState] = useState(1);
-
-  useEffect(() => {
-    const onChange = (event: HTMLBaseElement) => {
-      setNodes((nds) =>
-        nds.map((node) => {
-          if (node.id !== "2") {
-            return node;
-          }
-
-          const color = event.target;
-
-          setTestState(2);
-
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              color,
-            },
-          };
-        })
-      );
-    };
-  }, []);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
@@ -84,6 +59,9 @@ const Flow = () => {
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
       nodeTypes={nodeTypes}
+      fitView
+      minZoom={-Infinity}
+      maxZoom={Infinity}
     >
       <MiniMap />
       <Controls />

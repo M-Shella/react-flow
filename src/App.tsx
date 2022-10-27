@@ -1,161 +1,124 @@
-import React, {
-  useEffect,
-  useState,
-  MouseEvent,
-  DragEvent,
-  DragEventHandler,
-} from "react";
+import { Button } from "@mui/material";
+import React, { useCallback, useState } from "react";
 import ReactFlow, {
-  MarkerType,
+  addEdge,
+  applyEdgeChanges,
+  applyNodeChanges,
+  Background,
+  BackgroundVariant,
+  Connection,
+  ConnectionLineType,
+  Controls,
+  Edge,
+  EdgeChange,
+  MiniMap,
+  Node,
+  NodeChange,
+  NodeTypes,
   ReactFlowProvider,
   useReactFlow,
-  Node,
-  Edge,
-  NodeTypes,
-  OnNodesChange,
-  applyNodeChanges,
-  NodeMouseHandler,
-  NodeChange,
-  OnEdgesChange,
-  EdgeChange,
-  applyEdgeChanges,
+  useStoreApi,
 } from "reactflow";
-
-import Sidebar from "./components/SideBar";
-import CustomNode from "./components/CustomNode";
-import useAutoLayout, { Direction } from "./useAutoLayout";
-import * as initialElements from "./initialElements";
-
 import "reactflow/dist/style.css";
-import styles from "./styles.module.css";
+import CustomNode from "./components/CustomNodes/CustomNode";
+import Sidebar from "./components/SideBar";
 
-const nodeTypes: NodeTypes = {
-  custom: CustomNode,
-};
+const initialNodes: Node[] = [
+  {
+    id: "1",
+    position: { x: 0, y: 0 },
+    data: { label: "1", color: "black" },
+    type: "customNode",
+  },
+  {
+    id: "3",
+    position: { x: 0, y: 150 },
+    data: { label: "2", color: "black" },
+    type: "customNode",
+  },
+];
 
-const proOptions = {
-  account: "paid-pro",
-  hideAttribution: true,
-};
+const initialEdges: Edge[] = [
+  { id: "e1-2", source: "1", target: "2", type: "step" },
+];
 
-const defaultEdgeOptions = {
-  type: "smoothstep",
-  markerEnd: { type: MarkerType.ArrowClosed },
-  pathOptions: { offset: 5 },
-};
+const nodeTypes: NodeTypes = { customNode: CustomNode };
 
-type ExampleProps = {
-  direction?: Direction;
-};
+let id = 3;
 
-type NodeData = {
-  label: string;
-};
+const getId = () => `${id++}`;
 
-/**
- * This example shows how you can automatically arrange your nodes after adding child nodes to your graph.
- */
-function ReactFlowPro({ direction = "TB" }: ExampleProps) {
-  // this hook handles the computation of the layout once the elements or the direction changes
-  const { fitView } = useReactFlow();
+function App() {
+  const { project } = useReactFlow();
 
-  useAutoLayout({ direction });
-  const [nodes, setNodes] = useState<Node<NodeData>[]>(initialElements.nodes);
-  const [edges, setEdges] = useState<Edge[]>(initialElements.edges);
+  const [nodes, setNodes] = useState<Node[]>(initialNodes);
+  const [edges, setEdges] = useState<Edge[]>(initialEdges);
 
-  // this function adds a new node and connects it to the source node
-  const createConnection = (sourceId: string) => {
-    // create an incremental ID based on the number of elements already in the graph
-    const targetId: string = `${nodes.length + 1}`;
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) =>
+      setNodes((nds) => applyNodeChanges(changes, nds)),
+    []
+  );
 
-    const targetNode: Node<NodeData> = {
-      id: targetId,
-      data: { label: `Node ${targetId}` },
-      position: { x: 0, y: 0 }, // no need to pass a position as it is computed by the layout hook
-      type: "custom",
-      style: { opacity: 0 },
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange[]) =>
+      setEdges((eds) => applyEdgeChanges(changes, eds)),
+    []
+  );
+
+  const onConnect = useCallback(
+    (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
+    [setEdges]
+  );
+
+  const onAddNode = (typeOfNode: string) => {
+    const id = getId();
+    const newNode = {
+      id,
+      position: project({ x: 10 + Number(id) * 30, y: 50 + Number(id) * 30 }),
+      data: { label: `Node ${id}`, color: typeOfNode },
+      type: "customNode",
     };
-
-    const connectingEdge: Edge = {
-      id: `${sourceId}->${targetId}`,
-      source: sourceId,
-      target: targetId,
-      style: { opacity: 0 },
-    };
-
-    setNodes((nodes) => nodes.concat([targetNode]));
-    setEdges((edges) => edges.concat([connectingEdge]));
+    setNodes((es) => es.concat(newNode));
   };
-
-  // this function is called once the node from the sidebar is dropped onto a node in the current graph
-  const onDrop: DragEventHandler = (evt: DragEvent<HTMLDivElement>) => {
-    // make sure that the event target is a DOM element
-    if (evt.target instanceof Element) {
-      // from the target element search for the node wrapper element which has the node id as attribute
-      const targetId = evt.target
-        .closest(".react-flow__node")
-        ?.getAttribute("data-id");
-
-      if (targetId) {
-        // now we can create a connection to the drop target node
-        createConnection(targetId);
-      }
-    }
-  };
-
-  // this function is called when a node in the graph is clicked
-  // enables a second possibility to add nodes to the canvas
-  const onNodeClick: NodeMouseHandler = (
-    _: MouseEvent,
-    node: Node<NodeData>
-  ) => {
-    // on click, we want to add create a new node connection the clicked node
-    createConnection(node.id);
-  };
-
-  const onNodesChange: OnNodesChange = (changes: NodeChange[]) => {
-    setNodes((nodes) => applyNodeChanges(changes, nodes));
-  };
-
-  const onEdgesChange: OnEdgesChange = (changes: EdgeChange[]) => {
-    setEdges((edges) => applyEdgeChanges(changes, edges));
-  };
-
-  // every time our nodes change, we want to center the graph again
-  useEffect(() => {
-    fitView({ duration: 400 });
-  }, [nodes, fitView]);
 
   return (
-    <div className={styles.container}>
-      <Sidebar />
-      <ReactFlow
-        className={styles.reactFlow}
-        proOptions={proOptions}
-        nodeTypes={nodeTypes}
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        fitView
-        onDrop={onDrop}
-        onNodeClick={onNodeClick}
-        // newly added edges get these options automatically
-        defaultEdgeOptions={defaultEdgeOptions}
-        minZoom={-Infinity}
-        maxZoom={Infinity}
-      />
+    <div style={{ display: "flex", height: "100%" }}>
+      <Sidebar onAddNode={onAddNode} />
+      <div
+        style={{
+          width: "100%",
+          height: "100vh",
+          // backgroundColor: "red",
+        }}
+      >
+        <ReactFlow
+          nodes={nodes}
+          onNodesChange={onNodesChange}
+          edges={edges}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={nodeTypes}
+          connectionLineType={ConnectionLineType.Step}
+          snapToGrid={true}
+          snapGrid={[180, 60]}
+          fitView
+          minZoom={-Infinity}
+          maxZoom={Infinity}
+        >
+          <MiniMap />
+          <Controls />
+          <Background
+            color="#888"
+            lineWidth={2}
+            gap={180}
+            style={{ backgroundColor: "#a3a0bf" }}
+            variant={BackgroundVariant.Lines}
+          />
+        </ReactFlow>
+      </div>
     </div>
   );
 }
 
-// as we are accessing the internal React Flow state in our component, we need to wrap it with the ReactFlowProvider
-const ReactFlowWrapper = (props: ExampleProps) => {
-  return (
-    <ReactFlowProvider>
-      <ReactFlowPro {...props} />
-    </ReactFlowProvider>
-  );
-};
-
-export default ReactFlowWrapper;
+export default App;
