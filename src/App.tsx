@@ -11,6 +11,7 @@ import ReactFlow, {
   Controls,
   Edge,
   EdgeChange,
+  MarkerType,
   MiniMap,
   Node,
   NodeChange,
@@ -22,31 +23,26 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import CustomNode from "./components/CustomNodes/CustomNode";
 import Sidebar from "./components/SideBar";
+import CustomConnectionLine from "./components/CustomConnectionLine";
 
-const initialNodes: Node[] = [
-  {
-    id: "1",
-    position: { x: 0, y: 0 },
-    data: { label: "1", color: "black" },
-    type: "customNode",
-  },
-  {
-    id: "3",
-    position: { x: 0, y: 150 },
-    data: { label: "2", color: "black" },
-    type: "customNode",
-  },
-];
+const initialNodes: Node[] = [];
 
-const initialEdges: Edge[] = [
-  { id: "e1-2", source: "1", target: "2", type: "step" },
-];
+const initialEdges: Edge[] = [];
 
 const nodeTypes: NodeTypes = { customNode: CustomNode };
 
-let id = 3;
+let id = 1;
 
 const getId = () => `${id++}`;
+
+const defaultEdgeOptions = {
+  style: { strokeWidth: 3, stroke: "black" },
+  type: "step",
+  markerEnd: {
+    type: MarkerType.ArrowClosed,
+    color: "black",
+  },
+};
 
 function App() {
   const { project } = useReactFlow();
@@ -75,7 +71,7 @@ function App() {
     const id = getId();
     const newNode = {
       id,
-      position: project({ x: 10 + Number(id) * 30, y: 50 + Number(id) * 30 }),
+      position: project({ x: 0, y: Number(id) * 70 }),
       data: { label: `Node ${id}`, color: typeOfNode },
       type: "customNode",
     };
@@ -89,7 +85,6 @@ function App() {
         style={{
           width: "100%",
           height: "100vh",
-          // backgroundColor: "red",
         }}
       >
         <ReactFlow
@@ -99,10 +94,10 @@ function App() {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           nodeTypes={nodeTypes}
-          connectionLineType={ConnectionLineType.Step}
+          connectionLineComponent={CustomConnectionLine}
+          defaultEdgeOptions={defaultEdgeOptions}
           snapToGrid={true}
           snapGrid={[180, 60]}
-          fitView
           minZoom={-Infinity}
           maxZoom={Infinity}
         >
@@ -112,7 +107,7 @@ function App() {
             color="#888"
             lineWidth={2}
             gap={180}
-            style={{ backgroundColor: "#a3a0bf" }}
+            style={{ backgroundColor: "#eeeeee" }}
             variant={BackgroundVariant.Lines}
           />
         </ReactFlow>

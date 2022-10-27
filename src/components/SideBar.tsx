@@ -24,59 +24,62 @@
 
 // export default SideBar;
 
-import { Button, Stack } from "@mui/material";
+import { Button, Stack, Typography, useTheme } from "@mui/material";
 import React, { DragEvent } from "react";
 
 import "../styles.css";
+import CustomButton from "./CustomButton";
+import LineColorPicker from "./LineColorPicker";
 
 interface SideBarProps {
   onAddNode: (typeOfNode: string) => void;
 }
 
 function Sidebar({ onAddNode }: SideBarProps) {
+  const theme = useTheme();
   return (
     <div className="sidebar">
-      <Stack spacing={1}>
-        <Button
-          variant="contained"
-          fullWidth
-          style={{ backgroundColor: "yellow", color: "black" }}
-          onClick={() => onAddNode("yellow")}
+      <Stack spacing={2}>
+        <Typography variant="h5" color="black">
+          Boxes
+        </Typography>
+        <CustomButton
+          nodeColor={theme.palette.warning.main}
+          onAddNode={onAddNode}
         >
-          + Orange box
-        </Button>
-        <Button
-          variant="contained"
-          style={{ backgroundColor: "red", color: "black" }}
-          fullWidth
-          onClick={() => onAddNode("red")}
+          Orange box
+        </CustomButton>
+        <CustomButton
+          nodeColor={theme.palette.error.main}
+          onAddNode={onAddNode}
         >
-          + Red box
-        </Button>
-        <Button
-          variant="contained"
-          fullWidth
-          style={{ backgroundColor: "green", color: "white" }}
-          onClick={() => onAddNode("green")}
+          Red box
+        </CustomButton>
+        <CustomButton
+          nodeColor={theme.palette.success.main}
+          onAddNode={onAddNode}
         >
-          + Green box
-        </Button>
-        <Button
-          variant="contained"
-          style={{ backgroundColor: "blue", color: "white" }}
-          fullWidth
-          onClick={() => onAddNode("blue")}
+          Green box
+        </CustomButton>
+        <CustomButton
+          nodeColor={theme.palette.primary.main}
+          onAddNode={onAddNode}
         >
-          + Blue box
-        </Button>
-        <Button
-          variant="contained"
-          fullWidth
-          style={{ backgroundColor: "black", color: "white" }}
-          onClick={() => onAddNode("black")}
-        >
-          + Black box
-        </Button>
+          Blue box
+        </CustomButton>
+        <CustomButton nodeColor="black" onAddNode={onAddNode}>
+          Black box
+        </CustomButton>
+        <Typography variant="h5" color="black">
+          Lines
+        </Typography>
+        <Typography variant="body1" color="black">
+          Color (TODO)
+        </Typography>
+        <LineColorPicker />
+        <Typography variant="body1" color="black">
+          Shape (TODO)
+        </Typography>
       </Stack>
     </div>
   );

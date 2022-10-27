@@ -35,12 +35,12 @@ body {
 .sidebar {
   color: white;
   padding: 10px;
-  border-right: 1px solid #222138;
+  border-right: 2px solid rgb(128, 128, 128);
   width: 180px;
-  height: 100vh;
+  minheight: 100%;
   flex-grow: 0;
   flex-shrink: 0;
-  background-color: #5f5d72;
+  background-color: #c5c5c5;
 }
 
 .sidebarLabel {

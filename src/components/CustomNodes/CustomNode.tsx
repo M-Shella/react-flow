@@ -1,21 +1,31 @@
-import { Typography } from "@mui/material";
-import React from "react";
+import { IconButton, Popover, Typography, Stack } from "@mui/material";
+import React, { useState } from "react";
 import { Handle, Node, NodeProps, Position } from "reactflow";
-
-type UseShapeOptions = {
-  type: string;
-  width: number;
-  height: number;
-  color: string;
-  selected: boolean;
-};
+import ElementMaker from "../ElementMaker";
+import EditIcon from "@mui/icons-material/Edit";
 
 function CustomNode({ data }: NodeProps) {
+  const [showInputEle, setShowInputEle] = useState(false);
+  const [value, setValue] = useState(data.label);
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
+    null
+  );
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+
   return (
     <div
       style={{
-        height: "50px",
-        width: "170px",
+        height: "44px",
+        width: "164px",
         border: "3px solid " + data.color,
         borderRadius: "6px",
         padding: "5px",
@@ -24,9 +34,34 @@ function CustomNode({ data }: NodeProps) {
       }}
     >
       <Handle type="target" position={Position.Left} />
-      <Typography variant="h6" textAlign="center">
-        {data.label}
-      </Typography>
+      <Stack alignItems="center" justifyContent="space-between" direction="row">
+        <ElementMaker
+          value={value}
+          handleChange={(e) => setValue(e.target.value)}
+          handleDoubleClick={() => setShowInputEle(true)}
+          handleBlur={() => setShowInputEle(false)}
+          showInputEle={showInputEle}
+        />
+        <IconButton size="small" onClick={handleClick}>
+          <EditIcon />
+        </IconButton>
+        <Popover
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "left",
+          }}
+        >
+          <Typography sx={{ p: 2 }}>TODO information about Node</Typography>
+        </Popover>
+      </Stack>
+
       <Handle type="source" position={Position.Right} id="a" />
     </div>
   );
